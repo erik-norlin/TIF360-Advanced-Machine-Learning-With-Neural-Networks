@@ -1,0 +1,92 @@
+def __init__(self):
+        super(GCN, self).__init__()
+        torch.manual_seed(12345)
+
+        num_classes  = 4
+        hidden_nodes = 50
+        num_heads = 1
+
+        self.conv1 = GraphConv(data.num_node_features, data.num_node_features**2)
+        self.conv2 = GraphConv(data.num_node_features**2, data.num_node_features**2)
+        self.conv3 = GraphConv(data.num_node_features**2, data.num_node_features)
+
+        self.linear1 = Linear(data.num_node_features, num_classes)
+
+def forward(self, x, edge_index, edge_attr, batch): 
+        x = self.conv1(x, edge_index, edge_weight=edge_attr) # graph_weights=graph_attribute, more layers 
+        x = x.relu()
+        x = self.conv2(x, edge_index, edge_weight=edge_attr)
+        x = x.relu()
+        x = self.conv3(x, edge_index, edge_weight=edge_attr)
+        
+        x = global_mean_pool(x, batch)  # [batch_size, hidden_channels]
+
+        x = F.dropout(x, p=0.5, training=self.training)
+        x = self.linear1(x)
+
+        return x
+
+
+Epoch:  1 Test accuracy:  0.9357 Test loss:  0.0001766509860754013
+Epoch:  2 Test accuracy:  0.93186 Test loss:  0.00017923029899597168
+Epoch:  3 Test accuracy:  0.9372 Test loss:  0.00017139647603034972
+Epoch:  4 Test accuracy:  0.94168 Test loss:  0.0001647015380859375
+Epoch:  5 Test accuracy:  0.94192 Test loss:  0.00016231603980064392
+Epoch:  6 Test accuracy:  0.94782 Test loss:  0.00015569421529769897
+Epoch:  7 Test accuracy:  0.94706 Test loss:  0.00015532191917300224
+Epoch:  9 Test accuracy:  0.94988 Test loss:  0.0001531622625887394
+Epoch:  10 Test accuracy:  0.9492 Test loss:  0.0001489292860031128
+
+
+--------------------------------------------------------------------------------------------------
+
+
+
+class GCN(torch.nn.Module):
+    def __init__(self):
+        super(GCN, self).__init__()
+        torch.manual_seed(12345)
+
+        num_classes = 4
+
+        self.conv1 = GraphConv(data.num_node_features, data.num_node_features**2)
+        self.conv2 = GraphConv(data.num_node_features**2, 4*(data.num_node_features**2))
+        self.conv3 = GraphConv(4*(data.num_node_features**2), data.num_node_features**2)
+        self.conv4 = GraphConv(data.num_node_features**2, data.num_node_features)
+
+        self.linear1 = Linear(data.num_node_features, num_classes)
+
+    def forward(self, x, edge_index, edge_attr, batch): 
+        x = self.conv1(x, edge_index, edge_weight=edge_attr) # graph_weights=graph_attribute, more layers 
+        x = x.relu()
+        x = self.conv2(x, edge_index, edge_weight=edge_attr)
+        x = x.relu()
+        x = self.conv3(x, edge_index, edge_weight=edge_attr)
+        x = x.relu()
+        x = self.conv4(x, edge_index, edge_weight=edge_attr)
+
+        x = global_mean_pool(x, batch)  # [batch_size, hidden_channels]
+
+        x = F.dropout(x, p=0.5, training=self.training)
+        x = self.linear1(x)
+
+        return x
+
+model = GCN()
+print(model)
+
+
+Epoch:  1 Training accuracy:  0.946681052631579 Test accuracy:  0.94734 Training loss:  0.00016784346619718953 Test loss:  0.00016761404901742934
+Epoch:  2 Training accuracy:  0.9548094736842105 Test accuracy:  0.95408 Training loss:  0.00014426762405194733 Test loss:  0.0001465454199910164
+Epoch:  3 Training accuracy:  0.95802 Test accuracy:  0.95838 Training loss:  0.0001318699765048529 Test loss:  0.00013273155316710473
+Epoch:  4 Training accuracy:  0.95982 Test accuracy:  0.95994 Training loss:  0.00012832952249991266 Test loss:  0.00012781260058283806
+Epoch:  5 Training accuracy:  0.9576989473684211 Test accuracy:  0.95732 Training loss:  0.00012944860732084826 Test loss:  0.00013118919894099235
+Epoch:  6 Training accuracy:  0.9602642105263158 Test accuracy:  0.96004 Training loss:  0.00011608480942876716 Test loss:  0.00011691830396652222
+Epoch:  7 Training accuracy:  0.9635473684210526 Test accuracy:  0.96308 Training loss:  0.0001101518763131217 Test loss:  0.00011367492705583573
+Epoch:  8 Training accuracy:  0.9638305263157895 Test accuracy:  0.9638 Training loss:  0.00011149136283680012 Test loss:  0.00011407633110880851
+Epoch:  9 Training accuracy:  0.9629210526315789 Test accuracy:  0.96284 Training loss:  0.00011087000778631161 Test loss:  0.0001138501638174057
+Epoch:  10 Training accuracy:  0.9674126315789474 Test accuracy:  0.96682 Training loss:  0.00010438471376895904 Test loss:  0.0001089542506635189
+
+
+Test accuracy:  0.94734
+Test accuracy:  0.94296
